@@ -109,19 +109,20 @@ export default function EliteVenueConsole() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        fanProfile: {
-          persona,
-        },
-        language: lang,
-        location: current.location,
-        summary: current.summary,
-        telemetry: {
-          crowdDensity,
-          safetyIndex,
-        },
-      }),
-    });
+      bbody: JSON.stringify({
+  zones: [
+    {
+      zoneId: "Gate-B",
+      zoneName: "North Hub",
+      crowdLevel: current.id === "INC-1" ? "HIGH" : "MODERATE"
+    }
+  ],
+  fanProfile: {
+    persona
+  },
+  language: lang,
+  location: current.location
+})
 
     if (!response.ok) {
       throw new Error("AI API failed");

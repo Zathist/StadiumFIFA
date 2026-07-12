@@ -200,33 +200,31 @@ export default function EliteVenueConsole() {
               )}
             </div>
 
-            {/
             {/* LIVE TELEMETRY FLOW STATUS */}
-<div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Vendor Ingress Control</h4>
-  <div className="space-y-3">
-    
-    {/* North Perimeters - Status */}
-    <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-      <span className="text-[11px] font-bold text-slate-700">North Perimeters</span>
-      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase rounded">Optimal</span>
-    </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Vendor Ingress Control</h4>
+              <div className="space-y-3">
+                
+                {/* North Perimeters - Status */}
+                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                  <span className="text-[11px] font-bold text-slate-700">North Perimeters</span>
+                  <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase rounded">Optimal</span>
+                </div>
 
-    {/* South Transit - Interactive Vendor Button */}
-    <button 
-      onClick={() => alert("Vendor Alert: Dispatching Maintenance Crew to South Transit...")}
-      className="w-full flex justify-between items-center p-3 bg-rose-50 rounded-lg border border-rose-200 hover:bg-rose-100 transition-all active:scale-[0.98]"
-    >
-      <span className="text-[11px] font-bold text-rose-800">South Transit Buffer</span>
-      <span className="px-2 py-1 bg-rose-500 text-white text-[9px] font-black uppercase rounded animate-pulse">Request Help</span>
-    </button>
-    
-  </div>
-</div>
+                {/* South Transit - Interactive Vendor Button */}
+                <button 
+                  onClick={() => alert("Vendor Alert: Dispatching Maintenance Crew to South Transit...")}
+                  className="w-full flex justify-between items-center p-3 bg-rose-50 rounded-lg border border-rose-200 hover:bg-rose-100 transition-all active:scale-[0.98]"
+                >
+                  <span className="text-[11px] font-bold text-rose-800">South Transit Buffer</span>
+                  <span className="px-2 py-1 bg-rose-500 text-white text-[9px] font-black uppercase rounded animate-pulse">Request Help</span>
+                </button>
+                
+              </div>
             </div>
           </div>
 
-          {/* ================= COLUMN 2: VECTOR VECTOR MAP LAYOUT ================= */}
+          {/* ================= COLUMN 2: VECTOR MAP LAYOUT ================= */}
           <div className="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center shadow-sm min-h-[480px]">
              <div className="w-full flex justify-between items-center mb-6">
                 <div>
@@ -298,31 +296,28 @@ export default function EliteVenueConsole() {
                   </div>
                 </div>
 
-                <<button 
- // ... inside the AI ADVISOR TERMINAL div, under the Predictive Modeling block:
+                <button 
+                  onClick={() => handleDispatch(current.id)}
+                  disabled={isDispatched[current.id]}
+                  className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all duration-500 ease-in-out ${
+                    isDispatched[current.id]
+                      ? "bg-emerald-600 text-white scale-[1.02]"
+                      : "bg-white text-slate-900 hover:bg-slate-100 active:scale-95"
+                  }`}
+                >
+                  {isDispatched[current.id] ? "✓ Directive Transmitted" : t.cta}
+                </button>
 
-<button 
-  onClick={() => handleDispatch(current.id)}
-  disabled={isDispatched[current.id]}
-  className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all duration-500 ease-in-out ${
-    isDispatched[current.id]
-      ? "bg-emerald-600 text-white scale-[1.02]"
-      : "bg-white text-slate-900 hover:bg-slate-100 active:scale-95"
-  }`}
->
-  {isDispatched[current.id] ? "✓ Directive Transmitted" : t.cta}
-</button>
-
-{/* Status Indicator */}
-<div className={`mt-4 p-3 rounded-lg border text-[10px] font-bold transition-opacity duration-300 ${
-  isDispatched[current.id] 
-    ? "opacity-100 bg-emerald-50 border-emerald-200 text-emerald-700" 
-    : "opacity-0"
-}`}>
-  <span className="flex items-center gap-2">
-    <span className="animate-spin">⚙️</span> DIRECTIVE ACTIVE: Rerouting North Hub flow...
-  </span>
-</div>
+                {/* Status Indicator */}
+                <div className={`mt-4 p-3 rounded-lg border text-[10px] font-bold transition-opacity duration-300 ${
+                  isDispatched[current.id] 
+                    ? "opacity-100 bg-emerald-50 border-emerald-200 text-emerald-700" 
+                    : "opacity-0"
+                }`}>
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin">⚙️</span> DIRECTIVE ACTIVE: Rerouting North Hub flow...
+                  </span>
+                </div>
               </div>
             </div>
 

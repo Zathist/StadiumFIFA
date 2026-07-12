@@ -299,17 +299,14 @@ export default function EliteVenueConsole() {
                 </div>
 
                 <<button 
-  const handleDispatch = (id: string) => {
-    // 1. Mark as dispatched
-    setIsDispatched(prev => ({ ...prev, [id]: true }));
-    
-    // 2. COOL PART: Automatically update the incident status on the map
-    // We can simulate the system fixing the problem
-    setTimeout(() => {
-      alert("System Update: Traffic rerouted. Gate B congestion clearing.");
-      setIsDispatched(prev => ({ ...prev, [id]: false }));
-    }, 2500);
-  };
+  <button 
+  onClick={() => handleDispatch(current.id)}
+  disabled={isDispatched[current.id]}
+  className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all duration-500 ease-in-out ${
+    isDispatched[current.id]
+      ? "bg-emerald-600 text-white scale-[1.02]"
+      : "bg-white text-slate-900 hover:bg-slate-100 active:scale-95"
+  }`}
 >
   {isDispatched[current.id] ? "✓ Directive Transmitted" : t.cta}
 </button>

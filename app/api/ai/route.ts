@@ -187,7 +187,7 @@ const response = await fetch(
 );
 
     if (!res.ok) {
-      const errBody = await res.text();
+      const errBody = await response.text();
       console.error("GEMINI HTTP ERROR:", res.status, errBody);
       return NextResponse.json(
         { error: "Gemini request failed", status: res.status, details: errBody },
@@ -195,7 +195,7 @@ const response = await fetch(
       );
     }
 
-    const data = await res.json();
+    const data = await response.json();
     const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     console.log("========== GEMINI RAW ==========");
     console.log(rawText);

@@ -299,7 +299,9 @@ export default function EliteVenueConsole() {
                 </div>
 
                 <<button 
-  <button 
+ // ... inside the AI ADVISOR TERMINAL div, under the Predictive Modeling block:
+
+<button 
   onClick={() => handleDispatch(current.id)}
   disabled={isDispatched[current.id]}
   className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all duration-500 ease-in-out ${
@@ -310,6 +312,17 @@ export default function EliteVenueConsole() {
 >
   {isDispatched[current.id] ? "✓ Directive Transmitted" : t.cta}
 </button>
+
+{/* Status Indicator */}
+<div className={`mt-4 p-3 rounded-lg border text-[10px] font-bold transition-opacity duration-300 ${
+  isDispatched[current.id] 
+    ? "opacity-100 bg-emerald-50 border-emerald-200 text-emerald-700" 
+    : "opacity-0"
+}`}>
+  <span className="flex items-center gap-2">
+    <span className="animate-spin">⚙️</span> DIRECTIVE ACTIVE: Rerouting North Hub flow...
+  </span>
+</div>
               </div>
             </div>
 

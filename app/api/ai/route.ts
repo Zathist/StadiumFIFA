@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildEvidenceObject, computeConfidence, type EvidenceSource } from "@/lib/evidence";
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.5-flash";
 
 async function fetchWeatherEvidence(location: string | undefined, origin: string): Promise<EvidenceSource> {
   if (!location) {
@@ -191,9 +191,6 @@ export async function POST(request: Request) {
 
     const data = await response.json();
     const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log("========== GEMINI RAW ==========");
-    console.log(rawText);
-    console.log("================================================");
 
     if (!rawText) {
       console.error("GEMINI UNEXPECTED RESPONSE:", JSON.stringify(data));

@@ -134,15 +134,15 @@ export default function EliteVenueConsole() {
     }
 
     setAgentLogs({
-      crowd: data.result.crowd_agent_report,
-      safety: data.result.safety_agent_report,
-      decision: data.result.decision_agent_report,
-    });
+  crowd: data.result.recommendation || "Crowd analysis completed",
+  safety: data.result.reasoning || "Safety analysis completed",
+  decision: `Urgency: ${data.result.urgencyLevel} | Zone: ${data.result.recommendedZone}`,
+});
 
     setDispatchStatus("executing_tools");
 
     setTimeout(() => {
-      const action = data.result.action_to_execute;
+      const action = data.result.recommendation || "Mitigation Matrix";
 
       if (action === "OPEN_GATE_B" || current.id === "INC-1") {
         setGateBStatus("OPEN");

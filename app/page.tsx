@@ -93,11 +93,8 @@ export default function EliteVenueConsole() {
 
   const current = incidents.find(i => i.id === selectedId) || incidents[0];
 
-  // --- REWIRED: Intelligent Orchestration Flow ---
   const handleApply = async () => {
     setDispatchStatus("running_agents");
-    
-    // 1. Immediately show "Processing" so the user knows the AI is working
     setAgentLogs({
       crowd: "Analyzing ingress density...",
       safety: "Checking heat thresholds...",
@@ -105,9 +102,8 @@ export default function EliteVenueConsole() {
     });
 
     try {
-      // 2. Add a timeout to the fetch so it doesn't hang forever
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 sec timeout
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       const response = await fetch("/api/ai", {
         method: "POST",
@@ -122,22 +118,17 @@ export default function EliteVenueConsole() {
       });
 
       clearTimeout(timeoutId);
-
-      // 3. Fallback logic if the API is slow or fails (Essential for Demos!)
-      if (!response.ok) throw new Error("API Offline");
-
       const data = await response.json();
       
       setAgentLogs({
-        crowd: data.result.recommendation || "Crowd flow rerouted.",
-        safety: data.result.reasoning || "Safety buffers cleared.",
-        decision: `Action: ${data.result.recommendedZone} Optimized.`
+        crowd: data.result?.recommendation || "Crowd flow rerouted.",
+        safety: data.result?.reasoning || "Safety buffers cleared.",
+        decision: `Action: ${data.result?.recommendedZone || "Optimization"} Active.`
       });
 
     } catch (error) {
-      console.warn("Using Demo Fallback Mode (API Unavailable)");
-      // This ensures your demo keeps moving even if the internet dies
-      await new Promise(r => setTimeout(r, 1500)); // Simulate thinking
+      console.warn("Using Demo Fallback");
+      await new Promise(r => setTimeout(r, 1200));
       setAgentLogs({
         crowd: current.id === "INC-1" ? "Identified 22% overflow at Gate B." : "Zone temp stable at 34°C.",
         safety: current.id === "INC-1" ? "Buffer zone capacity reached." : "Fans reporting heat stress.",
@@ -145,7 +136,6 @@ export default function EliteVenueConsole() {
       });
     }
 
-    // 4. Move to Tool Execution
     setDispatchStatus("executing_tools");
     
     setTimeout(() => {
@@ -154,10 +144,8 @@ export default function EliteVenueConsole() {
 
       setDispatchStatus("confirmed");
       setMissions(prev => [`Fixed: ${current.title}`, ...prev.slice(0, 1)]);
-
-      // 5. Reset to idle after victory message
       setTimeout(() => setDispatchStatus("idle"), 4000);
-    }, 2000);
+    }, 1800);
   };
   
   return (
@@ -196,7 +184,7 @@ export default function EliteVenueConsole() {
               {incidents.map(i => (
                 <button key={i.id} onClick={() => { setSelectedId(i.id); setAgentLogs({}); setDispatchStatus("idle"); }} className={`w-full p-4 rounded-xl text-left border transition-all ${selectedId === i.id ? "bg-slate-900 border-slate-900 text-white shadow-md" : "bg-white border-slate-100 hover:border-slate-300"}`}>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-black uppercase">{i.title}</span>
+                    <span className="text-[10px] font-black uppercase tracking-tight">{i.title}</span>
                     <div className={`w-1.5 h-1.5 rounded-full ${i.level === 'URGENT' ? 'bg-red-500 animate-pulse' : 'bg-orange-500'}`} />
                   </div>
                   <p className="text-[10px] font-bold text-slate-400">{i.location}</p>
@@ -239,16 +227,10 @@ export default function EliteVenueConsole() {
                 <div className="w-10 h-6 bg-emerald-500/20 border border-emerald-500 rounded-md" />
               </div>
             </div>
-            {/* Gate Indicators */}
             <span className="absolute top-0 left-1/2 -translate-x-1/2 text-[9px] font-black text-emerald-500">GATE A 🟢</span>
             <span className="absolute top-1/2 -right-10 -translate-y-1/2 text-[9px] font-black flex items-center gap-1">
               GATE B {gateBStatus === "OPEN" ? <span className="text-emerald-500">🟢 OPEN</span> : <span className="text-red-500 animate-pulse">🔴 SLOW</span>}
             </span>
-          </div>
-
-          <div className="mt-12 flex gap-10 border-t border-slate-100 pt-6 w-full justify-center">
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[9px] font-black uppercase text-slate-400 italic">Moving Fast</span></div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[9px] font-black uppercase text-slate-400 italic">High Friction</span></div>
           </div>
         </div>
 
@@ -274,49 +256,28 @@ export default function EliteVenueConsole() {
               <div className="space-y-4">
                 <div className="bg-white/5 p-4 rounded-xl border border-white/5">
                   <p className="text-[9px] font-black text-blue-400 uppercase tracking-wider mb-3">Multi-Agent Diagnostics</p>
-                  
                   <div className="space-y-3 text-[11px]">
                     <div className="pb-2 border-b border-white/10">
                       <p className="text-[8px] font-bold text-slate-500 uppercase">👤 Crowd Agent</p>
-                      <p className="text-slate-300 font-medium mt-0.5 leading-relaxed italic">
-                        {agentLogs.crowd || "Awaiting telemetry..."}
-                      </p>
+                      <p className="text-slate-300 font-medium mt-0.5 leading-relaxed italic">{agentLogs.crowd || "Awaiting telemetry..."}</p>
                     </div>
                     <div className="pb-2 border-b border-white/10">
                       <p className="text-[8px] font-bold text-slate-500 uppercase">🛡️ Safety Agent</p>
-                      <p className="text-slate-300 font-medium mt-0.5 leading-relaxed italic">
-                        {agentLogs.safety || "Standing by..."}
-                      </p>
+                      <p className="text-slate-300 font-medium mt-0.5 leading-relaxed italic">{agentLogs.safety || "Standing by..."}</p>
                     </div>
                     <div>
                       <p className="text-[8px] font-bold text-amber-400 uppercase">🧠 Chief Ops Agent</p>
-                      <p className="text-white font-black mt-1 leading-relaxed">
-                        {agentLogs.decision || "Awaiting evaluation..."}
-                      </p>
+                      <p className="text-white font-black mt-1 leading-relaxed">{agentLogs.decision || "Awaiting evaluation..."}</p>
                     </div>
                   </div>
                 </div>
-
-                {dispatchStatus === "executing_tools" && (
-                  <div className="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 animate-bounce flex items-center gap-2">
-                    <span className="text-lg">🛠️</span>
-                    <div>
-                       <p className="text-[9px] font-black text-emerald-400 uppercase">Applying Fix</p>
-                       <p className="text-[10px] font-mono text-emerald-300 font-bold">system_override_v2.exec()</p>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <button 
                 onClick={handleApply}
                 disabled={dispatchStatus !== "idle"}
                 className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${
-                  dispatchStatus === "confirmed" 
-                    ? "bg-emerald-500 text-white" 
-                    : dispatchStatus !== "idle" 
-                      ? "bg-blue-600 text-white" 
-                      : "bg-white text-black hover:bg-blue-50"
+                  dispatchStatus === "confirmed" ? "bg-emerald-500 text-white" : dispatchStatus !== "idle" ? "bg-blue-600 text-white" : "bg-white text-black hover:bg-blue-50"
                 }`}
               >
                 {dispatchStatus === "confirmed" ? "✓ Task Resolved" : dispatchStatus !== "idle" ? "Processing..." : t.cta}
@@ -325,4 +286,18 @@ export default function EliteVenueConsole() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <h2 className="text-[10px] font-black
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Recent Actions</h2>
+            <div className="space-y-2">
+              {missions.length > 0 ? missions.map((m, i) => (
+                <div key={i} className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <span className="text-[10px] font-bold text-slate-700">{m}</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                </div>
+              )) : <p className="text-[10px] text-slate-400 italic text-center py-2">No active missions.</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

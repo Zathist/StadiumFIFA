@@ -64,77 +64,77 @@ export default function EliteVenueConsole() {
     { id: "ZONE_D", name: "South Concourse", load: 94, color: "#ef4444" }
   ], []);
 
-  const incidents: Incident[] = useMemo(() => [
-    {
-      id: "INC-1",
-      level: "URGENT",
-      title: lang === 'en' ? "Crowded at Gate B" : "Multitud en Puerta B",
-      assignedAgent: "Crowd Flow Agent",
-      agentIcon: "🚶",
-      reasoning: "Ticket scanner #4 hardware failure. Processing capacity reduced by 25%. Current queue backlog at 320 individuals.",
-      prediction: "Queue growth rate (+18/min) projects an external perimeter breach within 11 minutes if left unmitigated.",
-      reasoningChain: [
-        "Telemetry triggered: Scanner #4 offline",
-        "Queue velocity calculated at +18 inputs/min",
-        "Perimeter threshold limit evaluated at 400 max occupancy",
-        "Mitigation matrix outputted: Reroute traffic to North Gate A"
-      ],
-      executionSteps: [
-        "🚶 Crowd Agent routing state updated",
-        "📢 Audio matrix broadcast sent to outer perimeter",
-        "👮 Ground personnel rerouted to Gate A transition lane"
-      ],
-      location: "Gate B / North Hub",
-      telemetryValue: 88,
-      time: "10:32 AM"
-    },
-    {
-      id: "INC-2",
-      level: "WATCH",
-      title: lang === 'en' ? "Thermal Spike: Section 114" : "Pico Térmico: Sección 114",
-      assignedAgent: "Safety & Environment Agent",
-      agentIcon: "🌡️",
-      reasoning: "Ambient temperature sensors crossing 34.2°C due to structural solar exposure and high local density.",
-      prediction: "Heat exhaustion probability models scale to 14% among dense clusters within the next 20 minutes.",
-      reasoningChain: [
-        "Thermal telemetry exceeded: 34.2°C threshold",
-        "Density calculation: 4.2 humans/sqm",
-        "Risk profile matched: Heat exhaustion hazards",
-        "Mitigation matrix outputted: Activate auxiliary cooling units"
-      ],
-      executionSteps: [
-        "🌡️ HVAC subsystem overrides engaged for Upper Section",
-        "💧 Automated hydration points highlighted on Fan Direct interface",
-        "🚑 Medical Response Unit 3 moved to local standby matrix"
-      ],
-      location: "Section 114 / Upper Level",
-      telemetryValue: 65,
-      time: "10:38 AM"
-    },
-    {
-      id: "INC-3",
-      level: "CRITICAL",
-      title: lang === 'en' ? "Severe Weather Ingress" : "Alerta de Clima Severo",
-      assignedAgent: "Emergency Coordination Agent",
-      agentIcon: "⛈️",
-      reasoning: "Doppler radar tracking severe cloud-to-ground lightning cells within an 8km perimeter radius.",
-      prediction: "Uncovered outdoor queues face immediate safety hazards. Sudden mass movement toward concourse gates expected.",
-      reasoningChain: [
-        "Doppler flash rate detected: 4 strikes/min inside inner ring",
-        "Velocity models show structural exposure risk in under 5 minutes",
-        "Concourse density headroom evaluated at 42% spatial safety limit",
-        "Mitigation matrix outputted: Execute structured shelter-in-place sequence"
-      ],
-      executionSteps: [
-        "⛈️ PA System global broadcast overridden for emergency alert",
-        "🚧 External digital signage altered to: SEEK SHELTER IMMEDIATELY",
-        "🛡️ Safety barriers opened to clear entry flow restrictions"
-      ],
-      location: "Stadium Perimeter Lanes",
-      telemetryValue: 94,
-      time: "10:44 AM"
-    }
-  ], [lang]);
+const incidents: Incident[] = useMemo(() => [
+  {
+    id: "INC-1",
+    level: "URGENT",
+    title: lang === 'en' ? "Crowd at Gate B" : "Multitud en Puerta B",
+    assignedAgent: "Crowd Agent",
+    agentIcon: "🚶",
+    reasoning: "Ticket scanner #4 broke down. Lines are growing by 20 people every minute.",
+    prediction: "The gate area will overflow in 10 minutes if we don't open another path.",
+    reasoningChain: [
+      "Scanner #4 stopped working",
+      "Lines growing fast (+20 people/min)",
+      "Gate space limit is almost full",
+      "Best fix: Send people to North Gate A"
+    ],
+    executionSteps: [
+      "Update signs to point to Gate A",
+      "Play audio guide announcements",
+      "Move 4 staff members to help guide fans"
+    ],
+    location: "Gate B / North Entrance",
+    telemetryValue: 88,
+    time: "10:32 AM"
+  },
+  {
+    id: "INC-2",
+    level: "WATCH",
+    title: lang === 'en' ? "Too Hot in Section 114" : "Mucho Calor: Sección 114",
+    assignedAgent: "Weather & Safety Agent",
+    agentIcon: "🌡️",
+    reasoning: "Direct sun is hitting Section 114. Temperature just hit 34°C.",
+    prediction: "Fans will start feeling dizzy and dehydrated soon without cooling.",
+    reasoningChain: [
+      "Sensors hit hot zone (34°C)",
+      "Seats are packed close together",
+      "Risk of fans getting sick from heat",
+      "Best fix: Turn on extra fans and bring water"
+    ],
+    executionSteps: [
+      "Turn on maximum fan cooling",
+      "Show water station locations on Fan View",
+      "Send a first-aid team nearby just in case"
+    ],
+    location: "Section 114 / Upper Seats",
+    telemetryValue: 65,
+    time: "10:38 AM"
+  },
+  {
+    id: "INC-3",
+    level: "CRITICAL",
+    title: lang === 'en' ? "Heavy Rain Alert" : "Alerta de Lluvia Fuerte",
+    assignedAgent: "Emergency Agent",
+    agentIcon: "⛈️",
+    reasoning: "Storm radar shows lightning and heavy rain hitting the stadium in 5 minutes.",
+    prediction: "Fans waiting outside will get soaked and rush the gates dangerously.",
+    reasoningChain: [
+      "Lightning detected close by",
+      "Heavy rain arriving in under 5 minutes",
+      "Outside lines have no roof",
+      "Best fix: Move everyone inside to the main hallways"
+    ],
+    executionSteps: [
+      "Announce storm warning over speakers",
+      "Change outside signs to read: MOVE INSIDE NOW",
+      "Open all side doors to let people in fast"
+    ],
+    location: "Outside Stadium Lanes",
+    telemetryValue: 94,
+    time: "10:44 AM"
+  }
+], [lang]);
 
   useEffect(() => {
     setTime(new Date().toLocaleTimeString());

@@ -298,17 +298,17 @@ export default function EliteVenueConsole() {
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => handleDispatch(current.id)}
-                  disabled={isDispatched[current.id]}
-                  className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all ${
-                    isDispatched[current.id]
-                      ? "bg-emerald-600 text-white cursor-default shadow-none"
-                      : "bg-white text-slate-900 hover:bg-slate-100 active:scale-95"
-                  }`}
-                >
-                  {isDispatched[current.id] ? "✓ Directive Transmitted" : t.cta}
-                </button>
+                <<button 
+  onClick={() => handleDispatch(current.id)}
+  disabled={isDispatched[current.id]}
+  className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all duration-500 ease-in-out ${
+    isDispatched[current.id]
+      ? "bg-emerald-600 text-white scale-[1.02]"
+      : "bg-white text-slate-900 hover:bg-slate-100 active:scale-95"
+  }`}
+>
+  {isDispatched[current.id] ? "✓ Directive Transmitted" : t.cta}
+</button>
               </div>
             </div>
 

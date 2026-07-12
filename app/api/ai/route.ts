@@ -9,12 +9,12 @@ async function fetchWeatherEvidence(location: string | undefined, origin: string
     return { name: "Weather", available: false, data: null, reason: "No location provided" };
   }
   try {
-    const res = await fetch(`${origin}/api/weather`, {
+    const response = await fetch(`${origin}/api/weather`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ location }),
     });
-    const data = await res.json();
+    const data = await response.json();
     if (!data.available) {
       return { name: "Weather", available: false, data: null, reason: data.reason || "Weather source unavailable" };
     }
@@ -29,7 +29,7 @@ async function fetchAlertsEvidence(location: string | undefined, origin: string)
     return { name: "Official Alerts (NWS)", available: false, data: null, reason: "No location provided" };
   }
   try {
-    const res = await fetch(`${origin}/api/alerts`, {
+    const response = await fetch(`${origin}/api/alerts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ location }),

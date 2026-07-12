@@ -106,22 +106,36 @@ export default function EliteVenueConsole() {
     try {
       // 1. POST to the Multi-Agent Router Endpoint
       const res = await fetch("/api/agent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          incident: current,
-          telemetry: { crowdDensity, safetyIndex }
-        })
-      });
+      // --- Real Orchestration Flow ---
+const handleApply = async () => {
+  setDispatchStatus("running_agents");
+  setAgentLogs({});
 
-      const data = await res.json();
+  try {
+    // CHANGE THIS LINE:
+    const res = await fetch("/api/ai", { 
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        // Ensure these keys match what your backend expects
+        zones: [ /* ... map your incidents/telemetry to zones if needed ... */ ],
+        fanProfile: { persona },
+        language: lang,
+        location: current.location
+      })
+    });
 
-      // 2. Render Multi-Agent Analysis stream values dynamically
-      setAgentLogs({
-        crowd: data.crowd_agent_report,
-        safety: data.safety_agent_report,
-        decision: data.decision_agent_report
-      });
+    const data = await res.json();
+    
+    // NOTE: Your backend now returns data.result (based on the route.ts code provided earlier)
+    // You need to update your state setters to point to data.result
+    setAgentLogs({
+      crowd: data.result.crowd_agent_report, // Verify these keys match your backend response
+      safety: data.result.safety_agent_report,
+      decision: data.result.decision_agent_report
+    });
+
+    // ... rest of your logic
 
       // 3. Move to tool execution phase
       setDispatchStatus("executing_tools");

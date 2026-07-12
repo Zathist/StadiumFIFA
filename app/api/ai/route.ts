@@ -34,7 +34,7 @@ async function fetchAlertsEvidence(location: string | undefined, origin: string)
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ location }),
     });
-    const data = await res.json();
+    const data = await response.json();
     if (!data.available) {
       return { name: "Official Alerts (NWS)", available: false, data: null, reason: data.reason || "Alerts source unavailable" };
     }

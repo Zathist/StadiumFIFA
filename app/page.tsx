@@ -3,34 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-// --- Internationalization ---
-const TRANSLATIONS = {
-  en: {
-    welcome: "Tournament Intelligence Portal",
-    sos: "EMERGENCY SOS",
-    eco: "Sustainability Hub",
-    ops: "Command Center",
-    fan: "Fan Concierge",
-    security: "Prohibited Items: No liquid > 100ml. Clear bags only.",
-    systemStatus: "Evidence Connected",
-    systemStatusLow: "Limited Data",
-  },
-  es: {
-    welcome: "Portal de Inteligencia",
-    sos: "S.O.S EMERGENCIA",
-    eco: "Centro de Sostenibilidad",
-    ops: "Centro de Mando",
-    fan: "Asistente de Fan",
-    security: "Prohibido: Líquidos > 100ml. Bolsas transparentes.",
-    systemStatus: "Evidencia Conectada",
-    systemStatusLow: "Datos Limitados",
-  },
-};
-
-const LANG_TO_FULL: Record<"en" | "es", string> = { en: "English", es: "Spanish" };
-
-type Theme = "dark" | "light" | "contrast";
-
 type ZoneStatus = {
   zoneId: string;
   zoneName: string;
@@ -48,102 +20,16 @@ type Sustainability = {
   reportedBy: string;
 };
 
-type EvidenceSource = { name: string; available: boolean; data: unknown; reason?: string };
-type EvidenceObject = {
-  sources: EvidenceSource[];
-  availableCount: number;
-  totalCount: number;
-  missingSources: string[];
-};
-
-type Decision = {
-  urgencyLevel: "LOW" | "MODERATE" | "HIGH";
-  recommendation: string;
-  reasoning: string;
-  recommendedZone: string;
-  thresholdMet: boolean;
-  monitoringNote: string;
-  missingDataNote: string;
-  confidence: number;
-};
-
-const THEME_CLASSES: Record<Theme, string> = {
-  dark: "bg-[#05070a] text-white",
-  light: "bg-slate-50 text-slate-900",
-  contrast: "bg-black text-[#ffff00] font-mono border-4 border-[#ffff00]",
-};
-
-const CROWD_FILL: Record<string, string> = {
-  LOW: "#10b981",
-  MODERATE: "#f59e0b",
-  HIGH: "#f43f5e",
-  AT_CAPACITY: "#be123c",
-};
-
-// A real visual, not decoration: gate position/color is driven directly by
-// live zone data from the ops panel. Nothing here is a fixed illustration.
-function StadiumMap({ zones }: { zones: ZoneStatus[] }) {
-  const cx = 200;
-  const cy = 130;
-  const rx = 150;
-  const ry = 90;
-
-  return (
-    <svg viewBox="0 0 400 260" className="w-full h-auto" role="img" aria-label="Live stadium zone map">
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke="currentColor" strokeOpacity={0.15} strokeWidth={2} />
-      <ellipse cx={cx} cy={cy} rx={rx * 0.55} ry={ry * 0.55} fill="currentColor" fillOpacity={0.04} stroke="currentColor" strokeOpacity={0.1} />
-      {zones.map((z, i) => {
-        const angle = (2 * Math.PI * i) / Math.max(zones.length, 1) - Math.PI / 2;
-        const x = cx + rx * Math.cos(angle);
-        const y = cy + ry * Math.sin(angle);
-        const fill = CROWD_FILL[z.crowdLevel] ?? "#64748b";
-        return (
-          <g key={z.zoneId}>
-            <circle cx={x} cy={y} r={z.gateOpen ? 12 : 9} fill={fill} stroke="white" strokeWidth={z.gateOpen ? 2 : 1} strokeOpacity={0.5}>
-              <title>{`${z.zoneName}: ${z.crowdLevel.replace("_", " ")}${z.gateOpen ? "" : " (closed)"}`}</title>
-            </circle>
-            {!z.gateOpen && (
-              <line x1={x - 6} y1={y - 6} x2={x + 6} y2={y + 6} stroke="white" strokeWidth={1.5} />
-            )}
-            <text
-              x={x}
-              y={y + (angle > -Math.PI / 2 && angle < Math.PI / 2 ? 24 : -18)}
-              textAnchor="middle"
-              fontSize="9"
-              fontWeight="700"
-              fill="currentColor"
-              opacity={0.7}
-            >
-              {z.zoneName.split(" - ")[0].toUpperCase()}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-export default function ArenaIQ() {
-  const [lang, setLang] = useState<"en" | "es">("en");
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [persona, setPersona] = useState<"OPS" | "FAN">("OPS");
-  const [sosActive, setSosActive] = useState(false);
-
-  const [location, setLocation] = useState("Los Angeles");
+export default function OpsPanel() {
   const [zones, setZones] = useState<ZoneStatus[]>([]);
   const [sustainability, setSustainability] = useState<Sustainability | null>(null);
-
-  const [loading, setLoading] = useState(false);
-  const [decision, setDecision] = useState<Decision | null>(null);
-  const [evidence, setEvidence] = useState<EvidenceObject | null>(null);
-  const [aiError, setAiError] = useState<string | null>(null);
-
-  const t = TRANSLATIONS[lang];
+  const [loading, setLoading] = useState(true);
 
   async function loadZones() {
     const res = await fetch("/api/venue");
     const data = await res.json();
     setZones(data.zones);
+    setLoading(false);
   }
 
   async function loadSustainability() {
@@ -157,6 +43,133 @@ export default function ArenaIQ() {
     loadSustainability();
   }, []);
 
-  const worstZone = zones.reduce<ZoneStatus | null>((worst, z) => {
-    const rank = { LOW: 0, MODERATE: 1, HIGH: 2, AT_CAPACITY: 3 };
-    if (!worst || rank[z.crowdLevel] > rank[worst.crowdLevel]) return z;
+  async function updateZone(zoneId: string, update: Partial<ZoneStatus>) {
+    await fetch("/api/venue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ zoneId, ...update }),
+    });
+    loadZones();
+  }
+
+  async function updateSustainability(update: Partial<Sustainability>) {
+    await fetch("/api/sustainability", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(update),
+    });
+    loadSustainability();
+  }
+
+  if (loading) return <div className="p-10 text-center">Loading...</div>;
+
+  return (
+    <main className="min-h-screen bg-slate-50 px-4 py-10">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <header className="space-y-1">
+          <Link href="/" className="text-sm text-slate-500 underline">
+            ← Back to fan view
+          </Link>
+          <h1 className="text-3xl font-bold">Venue Ops Panel</h1>
+          <p className="text-slate-500 text-sm">
+            Staff use this to report real zone conditions — this feeds the fan-facing AI directly.
+          </p>
+        </header>
+
+        <div className="space-y-4">
+          {zones.map((zone) => (
+            <div
+              key={zone.zoneId}
+              className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold">{zone.zoneName}</h2>
+                <span className="text-xs text-slate-400">
+                  Updated {new Date(zone.updatedAt).toLocaleTimeString()}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(["LOW", "MODERATE", "HIGH", "AT_CAPACITY"] as const).map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => updateZone(zone.zoneId, { crowdLevel: level })}
+                    className={`text-xs px-3 py-1.5 rounded-full border font-medium ${
+                      zone.crowdLevel === level
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "bg-white text-slate-600 border-slate-300"
+                    }`}
+                  >
+                    {level.replace("_", " ")}
+                  </button>
+                ))}
+              </div>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={zone.gateOpen}
+                  onChange={(e) => updateZone(zone.zoneId, { gateOpen: e.target.checked })}
+                />
+                Gate open
+              </label>
+              <input
+                value={zone.note}
+                onChange={(e) => updateZone(zone.zoneId, { note: e.target.value })}
+                placeholder="Optional note (e.g. 'delay due to bag check')"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+          <h2 className="font-semibold">Sustainability Metrics</h2>
+          <p className="text-xs text-slate-500">
+            Enter real figures from venue systems. Leave blank if unavailable — the fan view
+            will show &quot;not reported&quot; rather than a fabricated number.
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <label className="text-xs space-y-1">
+              <span className="text-slate-500">Renewable %</span>
+              <input
+                type="number"
+                defaultValue={sustainability?.renewableEnergyPercent ?? ""}
+                onBlur={(e) =>
+                  updateSustainability({
+                    renewableEnergyPercent: e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+                className="w-full border border-slate-300 rounded-lg px-2 py-1.5"
+              />
+            </label>
+            <label className="text-xs space-y-1">
+              <span className="text-slate-500">Waste diverted (tons)</span>
+              <input
+                type="number"
+                defaultValue={sustainability?.wasteDivertedTons ?? ""}
+                onBlur={(e) =>
+                  updateSustainability({
+                    wasteDivertedTons: e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+                className="w-full border border-slate-300 rounded-lg px-2 py-1.5"
+              />
+            </label>
+            <label className="text-xs space-y-1">
+              <span className="text-slate-500">CO₂ saved (kg)</span>
+              <input
+                type="number"
+                defaultValue={sustainability?.co2SavedKg ?? ""}
+                onBlur={(e) =>
+                  updateSustainability({
+                    co2SavedKg: e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+                className="w-full border border-slate-300 rounded-lg px-2 py-1.5"
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

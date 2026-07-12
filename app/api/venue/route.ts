@@ -14,8 +14,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "zoneId is required" }, { status: 400 });
     }
 
-    // Only include fields that were actually provided - avoids silently
-    // overwriting existing values with undefined for omitted fields.
     const partialUpdate: Record<string, unknown> = {};
     if (crowdLevel !== undefined) partialUpdate.crowdLevel = crowdLevel;
     if (gateOpen !== undefined) partialUpdate.gateOpen = gateOpen;

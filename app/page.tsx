@@ -122,7 +122,8 @@ export default function EliteVenueConsole() {
   },
   language: lang,
   location: current.location
-})
+ }),
+});
 
     if (!response.ok) {
       throw new Error("AI API failed");

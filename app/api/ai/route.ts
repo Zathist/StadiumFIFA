@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildEvidenceObject, computeConfidence, type EvidenceSource } from "@/lib/evidence";
 
-const GEMINI_MODEL = "gemini-1.5-flash";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const GEMINI_MODEL = "gemini-2.5-flash";
 
 async function fetchWeatherEvidence(location: string | undefined, origin: string): Promise<EvidenceSource> {
   if (!location) {
@@ -63,10 +62,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // --- Build the Evidence Object ---
-    // Each source is validated as available/unavailable BEFORE Gemini sees
-    // anything. "Missing data" is a fact computed in code, not a claim we
-    // trust the model to make honestly on its own.
     const origin = new URL(request.url).origin;
     const [weatherEvidence, alertsEvidence] = await Promise.all([
       fetchWeatherEvidence(location, origin),
@@ -87,7 +82,7 @@ export async function POST(request: Request) {
       ? zones.some((z: { crowdLevel: string }) => z.crowdLevel === "HIGH" || z.crowdLevel === "AT_CAPACITY")
       : false;
 
-      const prompt = `
+    const prompt = `
       You are VenueMind, an evidence-based operations copilot for a FIFA World Cup 2026 stadium.
       
       Your job is to answer ONE question:
@@ -163,35 +158,34 @@ export async function POST(request: Request) {
       - reasoning must explain WHY using the evidence.
       - recommendedZone MUST exactly match one of the available zone IDs.
       - If evidence is insufficient, clearly state that instead of guessing.
-      `.trim();
+    `.trim();
 
-    // Update the URL from gemini-1.5-flash to gemini-2.5-flash
-const response = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: prompt }],
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-      generationConfig: {
-        responseMimeType: "application/json"
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            responseMimeType: "application/json"
+          }
+        }),
       }
-    }),
-  }
-);
+    );
 
-    if (!res.ok) {
+    if (!response.ok) {
       const errBody = await response.text();
-      console.error("GEMINI HTTP ERROR:", res.status, errBody);
+      console.error("GEMINI HTTP ERROR:", response.status, errBody);
       return NextResponse.json(
-        { error: "Gemini request failed", status: res.status, details: errBody },
-        { status: res.status }
+        { error: "Gemini request failed", status: response.status, details: errBody },
+        { status: response.status }
       );
     }
 
@@ -217,8 +211,6 @@ const response = await fetch(
       parsed = JSON.parse(cleaned);
     }
 
-    // Confidence is attached from our own code-computed value, not whatever
-    // (if anything) the model guessed - this keeps it trustworthy.
     return NextResponse.json({
       result: { ...parsed, confidence },
       evidence,

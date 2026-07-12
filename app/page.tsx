@@ -109,7 +109,7 @@ export default function EliteVenueConsole() {
       headers: {
         "Content-Type": "application/json",
       },
-      bbody: JSON.stringify({
+      body: JSON.stringify({
   zones: [
     {
       zoneId: "Gate-B",

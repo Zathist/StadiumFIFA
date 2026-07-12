@@ -200,19 +200,29 @@ export default function EliteVenueConsole() {
               )}
             </div>
 
+            {/
             {/* LIVE TELEMETRY FLOW STATUS */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Checkpoint Ingress Map</h4>
-              <div className="space-y-2 text-[11px] font-semibold text-slate-600">
-                <div className="flex justify-between">
-                  <span>North Perimeters</span>
-                  <span className="text-emerald-600 font-bold">Optimal</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>South Transit Buffer</span>
-                  <span className="text-rose-600 font-bold">Stalled Block</span>
-                </div>
-              </div>
+<div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Vendor Ingress Control</h4>
+  <div className="space-y-3">
+    
+    {/* North Perimeters - Status */}
+    <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+      <span className="text-[11px] font-bold text-slate-700">North Perimeters</span>
+      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase rounded">Optimal</span>
+    </div>
+
+    {/* South Transit - Interactive Vendor Button */}
+    <button 
+      onClick={() => alert("Vendor Alert: Dispatching Maintenance Crew to South Transit...")}
+      className="w-full flex justify-between items-center p-3 bg-rose-50 rounded-lg border border-rose-200 hover:bg-rose-100 transition-all active:scale-[0.98]"
+    >
+      <span className="text-[11px] font-bold text-rose-800">South Transit Buffer</span>
+      <span className="px-2 py-1 bg-rose-500 text-white text-[9px] font-black uppercase rounded animate-pulse">Request Help</span>
+    </button>
+    
+  </div>
+</div>
             </div>
           </div>
 

@@ -1,8 +1,3 @@
-// In-memory venue status store. No database needed for a hackathon demo -
-// this resets on server restart, which is fine since it's populated live
-// by the ops panel during the demo, not meant to persist long-term.
-// This is REAL data (entered by a human operator), not fabricated.
-
 export type ZoneStatus = {
   zoneId: string;
   zoneName: string;
@@ -10,6 +5,14 @@ export type ZoneStatus = {
   gateOpen: boolean;
   note: string;
   updatedAt: string;
+};
+
+export type SustainabilityMetrics = {
+  renewableEnergyPercent: number | null;
+  wasteDivertedTons: number | null;
+  co2SavedKg: number | null;
+  updatedAt: string | null;
+  reportedBy: string;
 };
 
 const defaultZones: ZoneStatus[] = [
@@ -47,7 +50,6 @@ const defaultZones: ZoneStatus[] = [
   },
 ];
 
-// Use globalThis to survive Next.js dev server hot-reloads
 const globalStore = globalThis as unknown as { venueZones?: ZoneStatus[] };
 
 export function getZones(): ZoneStatus[] {
@@ -63,4 +65,30 @@ export function updateZone(zoneId: string, update: Partial<ZoneStatus>) {
   if (idx === -1) return null;
   zones[idx] = { ...zones[idx], ...update, updatedAt: new Date().toISOString() };
   return zones[idx];
+}
+
+// Sustainability metrics start as null (unreported), never fabricated defaults.
+const globalSustain = globalThis as unknown as { sustainMetrics?: SustainabilityMetrics };
+
+export function getSustainability(): SustainabilityMetrics {
+  if (!globalSustain.sustainMetrics) {
+    globalSustain.sustainMetrics = {
+      renewableEnergyPercent: null,
+      wasteDivertedTons: null,
+      co2SavedKg: null,
+      updatedAt: null,
+      reportedBy: "",
+    };
+  }
+  return globalSustain.sustainMetrics;
+}
+
+export function updateSustainability(update: Partial<SustainabilityMetrics>) {
+  const current = getSustainability();
+  globalSustain.sustainMetrics = {
+    ...current,
+    ...update,
+    updatedAt: new Date().toISOString(),
+  };
+  return globalSustain.sustainMetrics;
 }

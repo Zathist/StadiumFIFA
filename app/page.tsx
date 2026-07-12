@@ -99,69 +99,78 @@ export default function EliteVenueConsole() {
   const current = incidents.find(i => i.id === selectedId) || incidents[0];
 
   // --- Real Orchestration Flow ---
-  const handleApply = async () => {
-    setDispatchStatus("running_agents");
-    setAgentLogs({});
-
-    try {
-      // 1. POST to the Multi-Agent Router Endpoint
-      const res = await fetch("/api/agent", {
-      // --- Real Orchestration Flow ---
-const handleApply = async () => {
+ const handleApply = async () => {
   setDispatchStatus("running_agents");
   setAgentLogs({});
 
   try {
-    // CHANGE THIS LINE:
-    const res = await fetch("/api/ai", { 
+    const response = await fetch("/api/ai", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        // Ensure these keys match what your backend expects
-        zones: [ /* ... map your incidents/telemetry to zones if needed ... */ ],
-        fanProfile: { persona },
+        fanProfile: {
+          persona,
+        },
         language: lang,
-        location: current.location
-      })
+        location: current.location,
+        summary: current.summary,
+        telemetry: {
+          crowdDensity,
+          safetyIndex,
+        },
+      }),
     });
 
-    const data = await res.json();
-    
-    // NOTE: Your backend now returns data.result (based on the route.ts code provided earlier)
-    // You need to update your state setters to point to data.result
-    setAgentLogs({
-      crowd: data.result.crowd_agent_report, // Verify these keys match your backend response
-      safety: data.result.safety_agent_report,
-      decision: data.result.decision_agent_report
-    });
-
-    // ... rest of your logic
-
-      // 3. Move to tool execution phase
-      setDispatchStatus("executing_tools");
-
-      // 4. Parse & Trigger Functional System Tooling based on AI Output
-      setTimeout(() => {
-        if (data.action_to_execute === "OPEN_GATE_B" || current.id === "INC-1") {
-          setGateBStatus("OPEN");
-        }
-        if (data.action_to_execute === "ACTIVATE_COOLING" || current.id === "INC-2") {
-          setSafetyIndex(9.9);
-        }
-
-        setDispatchStatus("confirmed");
-        setMissions(prev => [`Executed: ${data.action_to_execute || "Mitigation Matrix"}`, ...prev.slice(0, 1)]);
-        
-        // Reset process sequence state while keeping infrastructure updates active
-        setTimeout(() => setDispatchStatus("idle"), 4000);
-      }, 1500);
-
-    } catch (err) {
-      console.error("Agentic pipeline failure:", err);
-      setDispatchStatus("idle");
+    if (!response.ok) {
+      throw new Error("AI API failed");
     }
-  };
 
+    const data = await response.json();
+
+    if (!data.result) {
+      throw new Error("Invalid AI response structure");
+    }
+
+    setAgentLogs({
+      crowd: data.result.crowd_agent_report,
+      safety: data.result.safety_agent_report,
+      decision: data.result.decision_agent_report,
+    });
+
+    setDispatchStatus("executing_tools");
+
+    setTimeout(() => {
+      const action = data.result.action_to_execute;
+
+      if (action === "OPEN_GATE_B" || current.id === "INC-1") {
+        setGateBStatus("OPEN");
+      }
+
+      if (action === "ACTIVATE_COOLING" || current.id === "INC-2") {
+        setSafetyIndex(9.9);
+      }
+
+      setDispatchStatus("confirmed");
+
+      setMissions(prev => [
+        `Executed: ${action || "Mitigation Matrix"}`,
+        ...prev.slice(0, 1),
+      ]);
+
+      setTimeout(() => {
+        setDispatchStatus("idle");
+      }, 4000);
+
+    }, 1500);
+
+  } catch (error) {
+    console.error("Agentic pipeline failure:", error);
+    setDispatchStatus("idle");
+  }
+};
+  
   return (
     <main className="min-h-screen bg-[#F4F7F9] text-slate-900 font-sans selection:bg-blue-100">
       

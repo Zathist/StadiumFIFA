@@ -133,7 +133,7 @@ export default function EliteVenueConsole() {
                       <span className="text-[10px] font-black uppercase tracking-tight">{i.title}</span>
                       <div className={`w-1.5 h-1.5 rounded-full ${i.level === 'URGENT' ? 'bg-red-500' : 'bg-orange-500'}`} />
                     </div>
-                    <p className={`text-[10px] font-bold ${selectedId === i.id ? 'text-slate-400' : 'text-slate-400'}`}>{i.location}</p>
+                    <p className="text-[10px] font-bold text-slate-400">{i.location}</p>
                   </button>
                 ))}
               </div>
@@ -223,7 +223,7 @@ export default function EliteVenueConsole() {
                 onClick={handleApply}
                 disabled={dispatchStatus !== "idle"}
                 className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
-                  dispatchStatus === "confirmed" ? "bg-emerald-500" : dispatchStatus === "sending" ? "bg-blue-600 animate-pulse" : "bg-white text-black hover:bg-blue-50"
+                  dispatchStatus === "confirmed" ? "bg-emerald-500 text-white" : dispatchStatus === "sending" ? "bg-blue-600 text-white animate-pulse" : "bg-white text-black hover:bg-blue-50"
                 }`}
               >
                 {dispatchStatus === "confirmed" ? "Mission Live" : dispatchStatus === "sending" ? "Deploying..." : t.cta}
